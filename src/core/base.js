@@ -23,7 +23,7 @@ X.base = function() {
   // class attributes
 
   /**
-   * The className of this class.
+   * The classname of this class.
    *
    * @type {!string}
    * @protected
