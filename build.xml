@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="project" default="all">
+
+	<property name="software-short" value="xio" />
+
+
+
+	<property name="level" value="ADVANCED_OPTIMIZATIONS" />
+
+	<property name="basedir" location="." />
+
+	<property name="src" value="${basedir}/src" />
+	<property name="lib" value="${basedir}/lib" />
+	<property name="bin" value="${basedir}/bin" />
+
+	<property name="closure-compiler" value="${lib}/google-closure-compiler/compiler.jar" />
+	<property name="closure-library" value="${lib}/google-closure-library" />
+	<property name="closure-library-deps" value="${closure-library}/closure/goog/deps.js" />
+	<property name="closure-library-depswriter" value="${closure-library}/closure/bin/build/depswriter.py" />
+	<property name="closure-library-builder" value="${closure-library}/closure/bin/build/closurebuilder.py" />
+
+	<property name="dependency-file" value="${software-short}-deps.js" />
+
+
+
+	<loadfile property="license" srcfile="./LICENSE.min" />
+
+	<target name="prebuild" description="Performs pre-build steps.">
+		<mkdir dir="${bin}" />
+	</target>
+
+	<!-- deps.js file generation for development and .js file collection -->
+	<target name="deps" description="Generates a dependency file for development.">
+		<exec executable="python" failonerror="true">
+			<arg line="${closure-library-depswriter}" />
+			<arg line="--output_file=${dependency-file}" />
+			<arg line="--root_with_prefix='${src} ../../../../src'"/>
+			<arg line="--root_with_prefix='${lib}/zlib.js ../../../../lib/zlib.js'"/>
+		</exec>
+	</target>
+
+	<!-- Build everything. -->
+	<target name="all" depends="deps,prebuild" description="Builds ${software-short}.js.">
+		<!-- Find all source files. -->
+    <pathconvert property="srcfiles" pathsep=" ">
+      <map from="${basedir}" to="-i ." />
+      <fileset dir="${src}" includes="**/*.js" />
+    </pathconvert>
+		<!-- Execute the closure builder. -->
+		<exec executable="python" failonerror="true">
+			<arg line="${closure-library-builder}" />
+			<arg line="--root ${src}" />
+			<!-- include the closure library -->
+			<arg line="--root ${closure-library}" />
+			<!-- include zlib.js -->
+			<arg line="--root ${lib}/zlib.js/src" />
+			<arg line="-o compiled" />
+			<arg line="-c ${closure-compiler}" />
+			<arg line="--output_file=${bin}/${software-short}.js" />
+			<arg line="-f --warning_level=VERBOSE" />
+			<arg line="-f --compilation_level=ADVANCED_OPTIMIZATIONS" />
+			<arg line="-f --jscomp_warning=missingProperties" />
+			<arg line="-f --jscomp_warning=checkTypes" />
+			<arg line="-f --define=goog.DEBUG=false" />
+			<arg line="-f --summary_detail_level=3" />
+			<arg line="-f --output_wrapper='${license}(function() {%output%}).call(this);'" />
+			<arg line="${srcfiles}" />
+			<arg line="-f --js=${closure-library-deps}" />
+		</exec>
+	</target>
+
+	<!-- Delete old build files. -->
+	<target name="clean">
+		<delete dir="${bin}" />
+	</target>
+
+	<!-- Rebuild all. -->
+	<target name="rebuild" depends="clean,all" />
+
+</project>
+<!-- vim: set expandtab ts=2 sw=2: -->

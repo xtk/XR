@@ -1,0 +1,29 @@
+{
+  "author": {
+    "name": "Daniel Haehn"
+  },
+  "contributors": {
+    "name": "Daniel Haehn",
+    "email": "daniel.haehn@childrens.harvard.edu"
+  },
+  "name": "XR",
+  "description": "WebGL rendering component of XTK.",
+  "version": "0.0.1",
+  "main": "./bin/node-xio.js",
+  "homepage": "https://github.com/xtk/XR",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xtk/XR.git"
+  },
+  "dependencies" : {
+    "buster" : ">=0.6.3"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "scripts" : {
+    "test" : "node_modules/.bin/buster-test"
+  }
+}
