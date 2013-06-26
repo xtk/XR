@@ -3,6 +3,7 @@ goog.provide('X.renderer');
 
 // requires
 goog.require('X.base');
+goog.require('goog.webgl');
 
 /**
  * The WebGL powered renderer of XR.
