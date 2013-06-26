@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="project" default="all">
 
-	<property name="software-short" value="xio" />
+	<property name="software-short" value="xr" />
 
 
 
@@ -35,7 +35,6 @@
 			<arg line="${closure-library-depswriter}" />
 			<arg line="--output_file=${dependency-file}" />
 			<arg line="--root_with_prefix='${src} ../../../../src'"/>
-			<arg line="--root_with_prefix='${lib}/zlib.js ../../../../lib/zlib.js'"/>
 		</exec>
 	</target>
 
@@ -52,8 +51,6 @@
 			<arg line="--root ${src}" />
 			<!-- include the closure library -->
 			<arg line="--root ${closure-library}" />
-			<!-- include zlib.js -->
-			<arg line="--root ${lib}/zlib.js/src" />
 			<arg line="-o compiled" />
 			<arg line="-c ${closure-compiler}" />
 			<arg line="--output_file=${bin}/${software-short}.js" />
