@@ -57,7 +57,7 @@ Object.defineProperty(X.base.prototype, 'classname', {
    *
    * @return {!string} Returns the classname.
    * @this {X.base}
-   *
+   * @public
    */
   get : function() {
     return this._classname;
@@ -70,7 +70,7 @@ Object.defineProperty(X.base.prototype, 'id', {
    *
    * @return {!number} Returns the id.
    * @this {X.base}
-   *
+   * @public
    */
   get : function() {
     return this._id;
@@ -83,7 +83,7 @@ Object.defineProperty(X.base.prototype, 'dirty', {
    *
    * @return {!boolean} Returns TRUE if this instance was modified, FALSE otherwise.
    * @this {X.base}
-   *
+   * @public
    */
   get : function() {
     return this._dirty;
@@ -93,7 +93,7 @@ Object.defineProperty(X.base.prototype, 'dirty', {
    *
    * @param {!boolean} dirty TRUE if this instance was modified, FALSE otherwise.
    * @this {X.base}
-   *
+   * @public
    */
   set : function(dirty) {
     this._dirty = dirty;
