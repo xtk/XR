@@ -16,8 +16,8 @@
       domElement.style.height = '100px';
       this.renderer3D.container = domElement;
       assert(this.renderer3D.container == domElement);
-      assert(this.renderer3D.width == '200px');
-      assert(this.renderer3D.height == '100px');
+      assert(this.renderer3D.width == 200);
+      assert(this.renderer3D.height == 100);
     },
     "set container by id" : function() {
       var domElement = window.document.createElement('div');
@@ -28,8 +28,8 @@
 
       this.renderer3D.container = 'some_container';
       assert(this.renderer3D.container == domElement);
-      assert(this.renderer3D.width == '400px');
-      assert(this.renderer3D.height == '300px');
+      assert(this.renderer3D.width == 400);
+      assert(this.renderer3D.height == 300);
     },
     "init" : function() {
       // initialize using the <body> (default)
