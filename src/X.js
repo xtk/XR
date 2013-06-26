@@ -311,7 +311,6 @@ goog.exportSymbol('$', $);
 goog.exportSymbol('Function.prototype.bind', Function.prototype.bind);
 goog.exportSymbol('window.requestAnimationFrame', window.requestAnimationFrame);
 goog.exportSymbol('window.cancelAnimationFrame', window.cancelAnimationFrame);
-goog.exportSymbol('X.counter', X.counter);
 goog.exportSymbol('X.__extends__', X.__extends__);
 goog.exportSymbol('X.__super__', X.__super__);
 goog.exportSymbol('X.version', X.version);

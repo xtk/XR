@@ -3,8 +3,8 @@
   buster.testCase('base', {
     setUp : function() {
 
-      this.oldcounter = X.counter;
       this.base = new X.base();
+      this.base2 = new X.base();
 
     },
     "get classname" : function() {
@@ -16,12 +16,14 @@
       assert(this.base.classname == 'base');
     },
     "get id" : function() {
-      assert(this.base.id == this.oldcounter+1);
+      assert(this.base2.id != this.base.id);
     },
     "set id" : function() {
+      var old_id = this.base2.id;
       // should have no effect
-      this.base.id = 'something';
-      assert(this.base.id == this.oldcounter+1);
+      this.base2.id = 'something';
+      assert(this.base2.id != 'something');
+      assert(this.base2.id == old_id);
     },
     "get dirty" : function() {
       assert(this.base.dirty == false);
