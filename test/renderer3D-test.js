@@ -30,6 +30,76 @@
       assert(this.renderer3D.container == domElement);
       assert(this.renderer3D.width == '400px');
       assert(this.renderer3D.height == '300px');
+    },
+    "init" : function() {
+      // initialize using the <body> (default)
+      this.renderer3D.init();
+
+      // now the height and width of the renderer should match the <body>
+      assert(this.renderer3D.height == window.document.body.clientHeight);
+      assert(this.renderer3D.width == window.document.body.clientWidth);
+
+      // and the canvas element should match the first child of the body
+      assert(this.renderer3D.canvas == window.document.body.children[0]);
+
+    },
+    "init with container" : function() {
+      // setup the container
+      this["set container by element"]();
+
+      // initialize using the container
+      this.renderer3D.init();
+
+      // now the height and width of the renderer should match the container
+      assert(this.renderer3D.height == this.renderer3D.container.clientHeight);
+      assert(this.renderer3D.width == this.renderer3D.container.clientWidth);
+
+      // and the canvas element should match the first child of the container
+      assert(this.renderer3D.canvas == this.renderer3D.container.children[0]);
+
+    },
+    "init with invisible canvas" : function() {
+      // create a canvas
+      var canvasElement = window.document.createElement('canvas');
+      canvasElement.width = 500;
+      canvasElement.height = 501;
+
+      // initialize using the canvas
+      this.renderer3D.init(canvasElement);
+
+      // now the height and width of the renderer should match the container
+      assert(this.renderer3D.height == canvasElement.height);
+      assert(this.renderer3D.width == canvasElement.width);
+
+      // and the container should match the canvas parent element (null in this case)
+      assert(this.renderer3D.container == canvasElement.parentElement);
+      assert(this.renderer3D.container == null);
+
+    },
+    "init with canvas" : function() {
+      // create a canvas
+      var canvasElement = window.document.createElement('canvas');
+      canvasElement.width = 1000;
+      canvasElement.height = 1001;
+      window.document.body.appendChild(canvasElement);
+
+      // initialize using the canvas
+      this.renderer3D.init(canvasElement);
+
+      // now the height and width of the renderer should match the container
+      assert(this.renderer3D.height == canvasElement.height);
+      assert(this.renderer3D.width == canvasElement.width);
+
+      // and the container should match the canvas parent element (<body> in this case)
+      assert(this.renderer3D.container == canvasElement.parentElement);
+      assert(this.renderer3D.container == window.document.body);
+
+    },
+    "get canvas" : function() {
+      var canvasElement = window.document.createElement('canvas');
+      // initialize using the canvas
+      this.renderer3D.init(canvasElement);
+      assert(this.renderer3D.canvas == canvasElement);
     }
   });
 

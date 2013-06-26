@@ -31,7 +31,7 @@ X.renderer = function() {
    * The HTML container of this renderer, E.g. a <div>.
    * By default, this is the <body>-element.
    *
-   * @type {!Element|HTMLBodyElement}
+   * @type {?Element|HTMLBodyElement}
    * @protected
    */
   this._container = window.document.body;
@@ -145,4 +145,60 @@ Object.defineProperty(X.renderer.prototype, 'width', {
   }
 });
 
+Object.defineProperty(X.renderer.prototype, 'canvas', {
+  /**
+   * Get the <canvas>-element of this renderer.
+   *
+   * @return {?Element} The <canvas>-element of this renderer.
+   * @this {X.renderer}
+   * @public
+   */
+  get : function() {
+    return this._canvas;
+  }
+});
 
+/**
+ * Initialize the renderer. An optional <canvas>-element can be passed
+ * to skip creating our own canvas inside the container.
+ *
+ * @param {?Element=} canvas An optional <canvas>-element to skip creating a new one.
+ * @public
+ */
+X.renderer.prototype.init = function(canvas) {
+
+  // check if we have a given canvas element
+  if (goog.isDefAndNotNull(canvas) && canvas.tagName.toUpperCase() == 'CANVAS') {
+
+    // a canvas element was passed
+    this._canvas = canvas;
+
+    // we will update the container
+    this._container = goog.dom.getParentElement(canvas);
+
+    // ..and our size
+    this._width = canvas.width;
+    this._height = canvas.height;
+
+
+  } else {
+
+    // create a new canvas element
+    this._canvas = goog.dom.createDom('canvas');
+
+    //
+    // append it to the container
+    goog.dom.appendChild(this._container, this._canvas);
+
+    // the container might have resized now, so update our width and height
+    // settings
+    this._width = this._container.clientWidth;
+    this._height = this._container.clientHeight;
+
+    // propagate the container size to the canvas
+    this._canvas.width = this._width;
+    this._canvas.height = this._height;
+
+  }
+
+};
