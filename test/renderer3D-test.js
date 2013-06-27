@@ -33,12 +33,13 @@
       assert(this.renderer3D.height == 300);
     },
     "init" : function() {
+
+      // remove margin on body
+      window.document.body.style.margin = '0px';
+      
       // initialize using the <body> (default)
       this.renderer3D.init();
 
-      // remove margin
-      window.document.body.style.margin = '0px';
-      
       // now the height and width of the renderer should match the <body>
       assert(this.renderer3D.height == window.document.body.clientHeight);
       assert(this.renderer3D.width == window.document.body.clientWidth);
