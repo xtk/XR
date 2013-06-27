@@ -14,6 +14,7 @@
       var domElement = window.document.createElement('div');
       domElement.style.width = '200px';
       domElement.style.height = '100px';
+      window.document.body.appendChild(domElement);
       this.renderer3D.container = domElement;
       assert(this.renderer3D.container == domElement);
       assert(this.renderer3D.width == 200);
@@ -45,7 +46,11 @@
     },
     "init with container" : function() {
       // setup the container
-      this["set container by element"]();
+      var domElement = window.document.createElement('div');
+      domElement.style.width = '200px';
+      domElement.style.height = '100px';
+      window.document.body.appendChild(domElement);
+      this.renderer3D.container = domElement;      
 
       // initialize using the container
       this.renderer3D.init();
