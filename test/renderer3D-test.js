@@ -32,22 +32,22 @@
       assert(this.renderer3D.width == 400);
       assert(this.renderer3D.height == 300);
     },
-    "init" : function() {
-
-      // remove margin on body
-      window.document.body.style.margin = '0px';
-      
-      // initialize using the <body> (default)
-      this.renderer3D.init();
-
-      // now the height and width of the renderer should match the <body>
-      assert(this.renderer3D.height == window.document.body.clientHeight);
-      assert(this.renderer3D.width == window.document.body.clientWidth);
-
-      // and the canvas element should match the first child of the body
-      assert(this.renderer3D.canvas == window.document.body.children[0]);
-
-    },
+//    "init" : function() {
+//
+//      // remove margin on body
+//      window.document.body.style.margin = '0px';
+//      
+//      // initialize using the <body> (default)
+//      this.renderer3D.init();
+//
+//      // now the height and width of the renderer should match the <body>
+//      assert(this.renderer3D.height == window.document.body.clientHeight);
+//      assert(this.renderer3D.width == window.document.body.clientWidth);
+//
+//      // and the canvas element should match the first child of the body
+//      assert(this.renderer3D.canvas == window.document.body.children[0]);
+//
+//    },
     "init with container" : function() {
       // setup the container
       var domElement = window.document.createElement('div');
