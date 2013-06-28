@@ -41,8 +41,8 @@
       this.renderer3D.init();
 
       // now the height and width of the renderer should match the <body>
-      assert(this.renderer3D.height == window.document.body.clientHeight);
-      assert(this.renderer3D.width == window.document.body.clientWidth);
+      assert(this.renderer3D.height == window.document.body.getBoundingClientRect().height);
+      assert(this.renderer3D.width == window.document.body.getBoundingClientRect().width);
 
       // and the canvas element should match the first child of the body
       assert(this.renderer3D.canvas == window.document.body.children[0]);
