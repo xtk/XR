@@ -109,6 +109,26 @@
       // initialize using the canvas
       this.renderer3D.init(canvasElement);
       assert(this.renderer3D.canvas == canvasElement);
+    },
+    "get gl" : function() {
+      this.renderer3D.destroy();
+      // no gl context should be there
+      assert(this.renderer3D.gl == null);
+      // re-create the gl context
+      this.renderer3D.init();
+      assert(this.renderer3D.gl != null);
+    },
+    "destroy" : function() {
+      this.renderer3D.destroy();
+      // canvas and gl context should be removed
+      assert(this.renderer3D.gl == null);
+      assert(this.renderer3D.canvas == null);
+      assert(this.renderer3D.container == null);
+
+      delete this.renderer3D;
+      this.renderer3D = null;
+      assert(this.renderer3D == null);
+
     }
   });
 

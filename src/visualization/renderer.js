@@ -42,7 +42,7 @@ X.renderer = function() {
    * @type {!number}
    * @public
    */
-  this._width = this._container.clientWidth;
+  this._width = this._container.getBoundingClientRect().width;
 
   /**
    * The height of this renderer.
@@ -50,7 +50,7 @@ X.renderer = function() {
    * @type {!number}
    * @public
    */
-  this._height = this._container.clientHeight;
+  this._height = this._container.getBoundingClientRect().height;
 
   /**
    * The Canvas of this renderer.
@@ -59,6 +59,11 @@ X.renderer = function() {
    * @public
    */
   this._canvas = null;
+
+  // make sure this abstract class can't be instantiated
+  if (!(this instanceof X.renderer3D)) {
+    throw new Error('X.renderer can not be instantiated. Use X.renderer3D instead.');
+  }
 
 };
 X.__extends__(X.renderer, X.base);
@@ -159,10 +164,11 @@ Object.defineProperty(X.renderer.prototype, 'canvas', {
 });
 
 /**
- * Initialize the renderer. An optional <canvas>-element can be passed
+ * Initialize the renderer and create the rendering context. An optional <canvas>-element can be passed
  * to skip creating our own canvas inside the container.
  *
  * @param {?Element=} canvas An optional <canvas>-element to skip creating a new one.
+ * @throws {Error} An error, if the rendering context could not be created.
  * @public
  */
 X.renderer.prototype.init = function(canvas) {
@@ -192,13 +198,25 @@ X.renderer.prototype.init = function(canvas) {
 
     // the container might have resized now, so update our width and height
     // settings
-    this._width = this._container.clientWidth;
-    this._height = this._container.clientHeight;
+    this._width = this._container.getBoundingClientRect().width;
+    this._height = this._container.getBoundingClientRect().height;
 
     // propagate the container size to the canvas
     this._canvas.width = this._width;
     this._canvas.height = this._height;
 
   }
+
+};
+
+X.renderer.prototype.destroy = function() {
+
+  // remove the canvas from the dom tree
+  goog.dom.removeNode(this._canvas);
+  delete this._canvas;
+  this._canvas = null;
+
+  // remove reference to the container
+  this._container = null;
 
 };
