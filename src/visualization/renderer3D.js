@@ -55,10 +55,10 @@ Object.defineProperty(X.renderer3D.prototype, 'gl', {
 /**
  * @inheritDoc
  */
-X.renderer3D.prototype.init = function() {
+X.renderer3D.prototype.init = function(canvas) {
 
   // call the superclass' init method
-  goog.base(this, 'init');
+  goog.base(this, 'init', canvas);
 
   // try to create the WebGL context
   try {
