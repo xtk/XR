@@ -40,7 +40,7 @@ X.renderer = function() {
    * The width of this renderer.
    *
    * @type {!number}
-   * @public
+   * @protected
    */
   this._width = this._container.getBoundingClientRect().width;
 
@@ -48,7 +48,7 @@ X.renderer = function() {
    * The height of this renderer.
    *
    * @type {!number}
-   * @public
+   * @protected
    */
   this._height = this._container.getBoundingClientRect().height;
 
@@ -56,9 +56,17 @@ X.renderer = function() {
    * The Canvas of this renderer.
    *
    * @type {?Element}
-   * @public
+   * @protected
    */
   this._canvas = null;
+
+  /**
+   * The animation frame id for the requestAnimationFrame loop.
+   *
+   * @type {!number}
+   * @protected
+   */
+  this._animation_frame_id = -1;
 
   // make sure this abstract class can't be instantiated
   if (!(this instanceof X.renderer3D)) {
@@ -209,6 +217,45 @@ X.renderer.prototype.init = function(canvas) {
 
 };
 
+/**
+ * (Re-)Start the rendering. This makes sure that all associated objects are ready to render.
+ *
+ * @throws {Error} An error if the renderer was not initialized properly.
+ * @public
+ */
+X.renderer.prototype.render = function() {
+
+  if (!this._canvas) {
+
+    throw new Error('Could not find the <canvas>.');
+
+  }
+
+  // check if a rendering loop is already active
+  // if yes, cancel it
+  if (this._animation_frame_id != -1) {
+    window.cancelAnimationFrame(this._animation_frame_id);
+  }
+
+  // trigger the rendering loop
+  this._animation_frame_id = window.requestAnimationFrame(this.render_.bind(this));
+
+};
+
+/**
+ * Perform the rendering.
+ *
+ * @protected
+ */
+X.renderer.prototype.render_ = function() {
+
+};
+
+/**
+ * Destroys this renderer.
+ *
+ * @public
+ */
 X.renderer.prototype.destroy = function() {
 
   // remove the canvas from the dom tree

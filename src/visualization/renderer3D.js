@@ -58,7 +58,7 @@ Object.defineProperty(X.renderer3D.prototype, 'gl', {
 X.renderer3D.prototype.init = function() {
 
   // call the superclass' init method
-  X.__super__(this, 'init');
+  goog.base(this, 'init');
 
   // try to create the WebGL context
   try {
@@ -75,6 +75,35 @@ X.renderer3D.prototype.init = function() {
     throw new Error('Could not create rendering context.');
 
   }
+
+};
+
+/**
+ * @inheritDoc
+ */
+X.renderer3D.prototype.render = function() {
+
+  // check if we have a valid WebGL rendering context
+  if (!this._gl) {
+
+    throw new Error('WebGL rendering context not found.');
+
+  }
+
+  // call the superclass' render method
+  goog.base(this, 'render');
+
+};
+
+/**
+ * @inheritDoc
+ */
+X.renderer3D.prototype.render_ = function() {
+
+  // do something
+
+  // request another animation frame
+  this._animation_frame_id = window.requestAnimationFrame(this.render_.bind(this));
 
 };
 
@@ -99,3 +128,4 @@ X.renderer3D.prototype.destroy = function() {
 goog.exportSymbol('X.renderer3D', X.renderer3D);
 goog.exportSymbol('X.renderer3D.prototype.init', X.renderer3D.prototype.init);
 goog.exportSymbol('X.renderer3D.prototype.destroy', X.renderer3D.prototype.destroy);
+goog.exportSymbol('X.renderer3D.prototype.render', X.renderer3D.prototype.render);
