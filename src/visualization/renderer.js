@@ -126,8 +126,8 @@ Object.defineProperty(X.renderer.prototype, 'container', {
     this._container = _container;
 
     // and update the height and width
-    this._width = _container.clientWidth;
-    this._height = _container.clientHeight;
+    this._width = this._container.getBoundingClientRect().width;
+    this._height = this._container.getBoundingClientRect().height;
 
   }
 });
