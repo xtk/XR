@@ -30,7 +30,7 @@ X.renderer3D = function() {
   /**
    * The WebGL rendering context of this renderer.
    *
-   * @type {?WebGLRenderingContext}
+   * @type {?Object}
    */
   this._gl = null;
 
@@ -42,7 +42,7 @@ Object.defineProperty(X.renderer3D.prototype, 'gl', {
   /**
    * Get the WebGL rendering context of this renderer.
    *
-   * @return {?WebGLRenderingContext} The WebGL rendering context of this renderer or null before initialization.
+   * @return {?Object} The WebGL rendering context of this renderer or null before initialization.
    * @this {X.renderer3D}
    * @public
    */
@@ -72,9 +72,11 @@ X.renderer3D.prototype.init = function(canvas) {
 
   } catch(e) {
 
-    throw new Error('Could not create rendering context.');
+    return false;
 
   }
+  
+  return true;
 
 };
 

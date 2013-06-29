@@ -4,88 +4,94 @@
     setUp : function() {
 
       this.renderer3D = new X.renderer3D();
+      
+      // check if this platform supports webgl
+      this.webgl_supported = true;
+      try {
+        
+        var canvas = window.document.createElement('canvas');
+        var gl = canvas.getContext('experimental-webgl');
+        if (!gl) {
+          canvas.getContext('webgl');
+        }
+        
+      } catch (e) {
+        
+        this.webgl_supported = false;
+        
+      }
+      window.console.log('WebGL supported:', this.webgl_supported);
 
-    },
-    "get container" : function() {
-      // by default, the body is the container
-      assert(this.renderer3D.container == window.document.body);
-    },
-    "set container by element" : function() {
-      var domElement = window.document.createElement('div');
-      domElement.style.width = '200px';
-      domElement.style.height = '100px';
-      window.document.body.appendChild(domElement);
-      this.renderer3D.container = domElement;
-      assert(this.renderer3D.container == domElement);
-      assert(this.renderer3D.width == 200);
-      assert(this.renderer3D.height == 100);
-    },
-    "set container by id" : function() {
-      var domElement = window.document.createElement('div');
-      domElement.style.width = '400px';
-      domElement.style.height = '300px';
-      domElement.id = 'some_container';
-      window.document.body.appendChild(domElement);
-
-      this.renderer3D.container = 'some_container';
-      assert(this.renderer3D.container == domElement);
-      assert(this.renderer3D.width == 400);
-      assert(this.renderer3D.height == 300);
     },
     "init" : function() {
-
-      // set the container back to the default (<body>)
-      this.renderer3D.container = window.document.body;
-
+      
       // initialize using the <body> (default)
-      this.renderer3D.init();
-
-      // now the height and width of the renderer should match the <body>
-      assert(this.renderer3D.height == window.document.body.getBoundingClientRect().height);
-      assert(this.renderer3D.width == window.document.body.getBoundingClientRect().width);
-
-      // and the canvas element should match the first child of the body
+      assert(this.renderer3D.init() == this.webgl_supported);
+      
+      // the canvas element should match the first child of the body
       assert(this.renderer3D.canvas == window.document.body.children[0]);
+      
+      // and now the height and width of the renderer should match the newly created <canvas>
+      assert(this.renderer3D.height == window.document.body.children[0].height);
+      assert(this.renderer3D.width == window.document.body.children[0].width);      
 
     },
     "init with container" : function() {
+      
       // setup the container
       var domElement = window.document.createElement('div');
       domElement.style.width = '200px';
       domElement.style.height = '100px';
       window.document.body.appendChild(domElement);
-      this.renderer3D.container = domElement;
 
       // initialize using the container
-      this.renderer3D.init();
+      assert(this.renderer3D.init(domElement) == this.webgl_supported);
 
       // now the height and width of the renderer should match the container
-      assert(this.renderer3D.height == this.renderer3D.container.clientHeight);
-      assert(this.renderer3D.width == this.renderer3D.container.clientWidth);
+      assert(this.renderer3D.height == domElement.clientHeight);
+      assert(this.renderer3D.width == domElement.clientWidth);
 
       // and the canvas element should match the first child of the container
-      assert(this.renderer3D.canvas == this.renderer3D.container.children[0]);
+      assert(this.renderer3D.canvas == domElement.children[0]);
 
     },
-    "init with invisible canvas" : function() {
+    "init with container id" : function() {
+      
+      // setup the container
+      var domElement = window.document.createElement('div');
+      domElement.style.width = '200px';
+      domElement.style.height = '100px';
+      domElement.id = 'something';
+      window.document.body.appendChild(domElement);
+
+      // initialize using the container
+      assert(this.renderer3D.init('something') == this.webgl_supported);
+
+      // now the height and width of the renderer should match the container
+      assert(this.renderer3D.height == domElement.clientHeight);
+      assert(this.renderer3D.width == domElement.clientWidth);
+
+      // and the canvas element should match the first child of the container
+      assert(this.renderer3D.canvas == domElement.children[0]);
+
+    },    
+    "init with invisible canvas" : function() {     
+      
       // create a canvas
       var canvasElement = window.document.createElement('canvas');
       canvasElement.width = 500;
       canvasElement.height = 501;
 
       // initialize using the canvas
-      this.renderer3D.init(canvasElement);
+      assert(this.renderer3D.init(canvasElement) == this.webgl_supported);
 
       // now the height and width of the renderer should match the container
       assert(this.renderer3D.height == canvasElement.height);
       assert(this.renderer3D.width == canvasElement.width);
 
-      // and the container should match the canvas parent element (null in this case)
-      assert(this.renderer3D.container == canvasElement.parentElement);
-      assert(this.renderer3D.container == null);
-
     },
     "init with canvas" : function() {
+      
       // create a canvas
       var canvasElement = window.document.createElement('canvas');
       canvasElement.width = 1000;
@@ -93,37 +99,37 @@
       window.document.body.appendChild(canvasElement);
 
       // initialize using the canvas
-      this.renderer3D.init(canvasElement);
+      assert(this.renderer3D.init(canvasElement) == this.webgl_supported);
 
       // now the height and width of the renderer should match the container
       assert(this.renderer3D.height == canvasElement.height);
       assert(this.renderer3D.width == canvasElement.width);
 
-      // and the container should match the canvas parent element (<body> in this case)
-      assert(this.renderer3D.container == canvasElement.parentElement);
-      assert(this.renderer3D.container == window.document.body);
-
     },
     "get canvas" : function() {
+      
       var canvasElement = window.document.createElement('canvas');
       // initialize using the canvas
-      this.renderer3D.init(canvasElement);
+      assert(this.renderer3D.init(canvasElement), this.webgl_supported);
       assert(this.renderer3D.canvas == canvasElement);
     },
     "get gl" : function() {
+      
       this.renderer3D.destroy();
       // no gl context should be there
       assert(this.renderer3D.gl == null);
       // re-create the gl context
-      this.renderer3D.init();
-      assert(this.renderer3D.gl != null);
+      assert(this.renderer3D.init(), this.webgl_supported);
+      if (this.webgl_supported) {
+        // only check for the gl context if webgl is supported
+        assert(this.renderer3D.gl != null);
+      }
     },
     "destroy" : function() {
       this.renderer3D.destroy();
       // canvas and gl context should be removed
       assert(this.renderer3D.gl == null);
       assert(this.renderer3D.canvas == null);
-      assert(this.renderer3D.container == null);
 
       delete this.renderer3D;
       this.renderer3D = null;
