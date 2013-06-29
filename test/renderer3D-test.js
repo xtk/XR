@@ -113,7 +113,7 @@
       
       var canvasElement = window.document.createElement('canvas');
       // initialize using the canvas
-      assert(this.renderer3D.init(canvasElement), this.webgl_supported);
+      assert(this.renderer3D.init(canvasElement) == this.webgl_supported);
       assert(this.renderer3D.canvas == canvasElement);
     },
     "get gl" : function() {
@@ -122,7 +122,7 @@
       // no gl context should be there
       assert(this.renderer3D.gl == null);
       // re-create the gl context
-      assert(this.renderer3D.init(), this.webgl_supported);
+      assert(this.renderer3D.init() == this.webgl_supported);
       if (this.webgl_supported) {
         // only check for the gl context if webgl is supported
         assert(this.renderer3D.gl != null);
