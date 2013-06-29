@@ -14,6 +14,9 @@
         if (!gl) {
           canvas.getContext('webgl');
         }
+        if (!gl) {
+          this.webgl_supported = false;
+        }
         
       } catch (e) {
         

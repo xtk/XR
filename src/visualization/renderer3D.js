@@ -69,6 +69,10 @@ X.renderer3D.prototype.init = function(canvas) {
     if (!this._gl) {
       this._gl = this._canvas.getContext('webgl');
     }
+    // and if this didn't work, we don't have webgl
+    if (!this._gl) {
+      return false;
+    }
 
   } catch(e) {
 
