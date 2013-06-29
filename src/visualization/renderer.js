@@ -28,21 +28,12 @@ X.renderer = function() {
   this._classname = 'renderer';
 
   /**
-   * The HTML container of this renderer, E.g. a <div>.
-   * By default, this is the <body>-element.
-   *
-   * @type {?Element|HTMLBodyElement}
-   * @protected
-   */
-  this._container = window.document.body;
-
-  /**
    * The width of this renderer.
    *
    * @type {!number}
    * @protected
    */
-  this._width = this._container.getBoundingClientRect().width;
+  this._width = -1;
 
   /**
    * The height of this renderer.
@@ -50,7 +41,7 @@ X.renderer = function() {
    * @type {!number}
    * @protected
    */
-  this._height = this._container.getBoundingClientRect().height;
+  this._height = -1;
 
   /**
    * The Canvas of this renderer.
@@ -76,65 +67,9 @@ X.renderer = function() {
 };
 X.__extends__(X.renderer, X.base);
 
-
-Object.defineProperty(X.renderer.prototype, 'container', {
-  /**
-   * Get the HTML container of this renderer.
-   *
-   * @return {!Element|HTMLBodyElement} Returns the HTML container.
-   * @this {X.renderer}
-   * @public
-   */
-  get : function() {
-    return this._container;
-  },
-  /**
-   * Set the HTML container for this renderer either as a DOMElement or
-   * using the element id.
-   *
-   * @param {!string|Element|HTMLBodyElement} container Set the HTML container.
-   * @this {X.renderer}
-   * @throws {Error} An error, if the given container is invalid.
-   * @public
-   */
-  set : function(container) {
-
-    // check if a container is passed
-    if (!goog.isDefAndNotNull(container)) {
-
-      throw new Error('An ID to a valid container (<div>..) is required.');
-
-    }
-
-    // check if the passed container is really valid
-    var _container = container;
-
-    // if an id is given, try to get the corresponding DOM element
-    if (goog.isString(_container)) {
-
-      _container = goog.dom.getElement(container);
-
-    }
-
-    // now we should have a valid DOM element
-    if (!goog.dom.isElement(_container)) {
-
-      throw new Error('Could not find the given container.');
-
-    }
-
-    this._container = _container;
-
-    // and update the height and width
-    this._width = _container.clientWidth;
-    this._height = _container.clientHeight;
-
-  }
-});
-
 Object.defineProperty(X.renderer.prototype, 'height', {
   /**
-   * Get the height of this renderer (as defined by the container).
+   * Get the height of this renderer.
    *
    * @return {!number} The height of this renderer.
    * @this {X.renderer}
@@ -147,7 +82,7 @@ Object.defineProperty(X.renderer.prototype, 'height', {
 
 Object.defineProperty(X.renderer.prototype, 'width', {
   /**
-   * Get the width of this renderer (as defined by the container).
+   * Get the width of this renderer.
    *
    * @return {!number} The width of this renderer.
    * @this {X.renderer}
@@ -172,49 +107,57 @@ Object.defineProperty(X.renderer.prototype, 'canvas', {
 });
 
 /**
- * Initialize the renderer and create the rendering context. An optional <canvas>-element can be passed
- * to skip creating our own canvas inside the container.
+ * Initialize the renderer and create the rendering context. A <div>-element can be passed
+ * to use as a container - by default, the <body> is used. Instead of a container, an optional <canvas>-element
+ * can be passed to skip creating a new <canvas>.
  *
- * @param {?Element=} canvas An optional <canvas>-element to skip creating a new one.
- * @throws {Error} An error, if the rendering context could not be created.
+ * @param {?Element|?string=} element An optional <div>-element or <canvas>-element their corresponding IDs.
+ * @return {boolean} TRUE or FALSE, depending if the rendering context could be created.
  * @public
  */
-X.renderer.prototype.init = function(canvas) {
-
-  // check if we have a given canvas element
-  if (goog.isDefAndNotNull(canvas) && canvas.tagName.toUpperCase() == 'CANVAS') {
+X.renderer.prototype.init = function(element) {
+  
+  // if an id is given, try to get the corresponding DOM element
+  if (goog.isString(element)) {
+    
+    element = goog.dom.getElement(element);
+    
+  }  
+  
+  // check if we have a canvas element
+  if (goog.isDefAndNotNull(element) && element.tagName.toUpperCase() == 'CANVAS') {
 
     // a canvas element was passed
-    this._canvas = canvas;
-
-    // we will update the container
-    this._container = goog.dom.getParentElement(canvas);
-
-    // ..and our size
-    this._width = canvas.width;
-    this._height = canvas.height;
-
+    this._canvas = element;
 
   } else {
+    
+    // by default, use the <body> as the container
+    var _element = window.document.body;
+    
+    // check if we have a div element
+    if (goog.isDefAndNotNull(element) && element.tagName.toUpperCase() == 'DIV') {
+      
+      _element = element;
+      
+    }
 
     // create a new canvas element
-    this._canvas = goog.dom.createDom('canvas');
-
-    //
-    // append it to the container
-    goog.dom.appendChild(this._container, this._canvas);
-
-    // the container might have resized now, so update our width and height
-    // settings
-    this._width = this._container.getBoundingClientRect().width;
-    this._height = this._container.getBoundingClientRect().height;
-
-    // propagate the container size to the canvas
-    this._canvas.width = this._width;
-    this._canvas.height = this._height;
-
+    this._canvas = goog.dom.createDom('canvas');  
+    this._canvas.width = _element.getBoundingClientRect().width;
+    this._canvas.height = _element.getBoundingClientRect().height;
+    
+    // append it to either the <body> or a given <div>
+    goog.dom.appendChild(_element, this._canvas);  
+    
   }
-
+  
+  // cache the current canvas size
+  this._width = this._canvas.width;
+  this._height = this._canvas.height;
+  
+  return true;
+  
 };
 
 /**
@@ -262,8 +205,5 @@ X.renderer.prototype.destroy = function() {
   goog.dom.removeNode(this._canvas);
   delete this._canvas;
   this._canvas = null;
-
-  // remove reference to the container
-  this._container = null;
 
 };
