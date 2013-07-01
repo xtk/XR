@@ -34,6 +34,12 @@ X.renderer3D = function() {
    */
   this._gl = null;
 
+  this._objects = [];
+
+  this._objects_length = 0;
+
+  this._shader_programs = [];
+
 };
 X.__extends__(X.renderer3D, X.renderer);
 
@@ -79,10 +85,31 @@ X.renderer3D.prototype.init = function(canvas) {
     return false;
 
   }
-  
+
+  // configure the WebGL context
+  this._gl.viewport(0, 0, this._width, this._height);
+
+  // configure opacity to 0.0 to overwrite the viewport background-color by
+  // the container color
+  this._gl.clearColor(0.0, 0.0, 0.0, 0.0);
+
+  // clear color and depth buffer
+  this._gl.clear(goog.webgl.COLOR_BUFFER_BIT | goog.webgl.DEPTH_BUFFER_BIT);
+
   return true;
 
 };
+
+X.renderer3D.prototype.add = function(object) {
+
+  this._objects.push(object);
+  this._objects_length++;
+
+  this._shader_programs.push(object.init_shaders(this._gl));
+  object.init_buffers(this._gl);
+
+};
+
 
 /**
  * @inheritDoc
@@ -106,7 +133,18 @@ X.renderer3D.prototype.render = function() {
  */
 X.renderer3D.prototype.render_ = function() {
 
-  // do something
+  // clear the viewport
+  this._gl.viewport(0, 0, this._width, this._height);
+  this._gl.clear(goog.webgl.COLOR_BUFFER_BIT | goog.webgl.DEPTH_BUFFER_BIT);
+
+  // call the render method for each object
+  for (var o=0; o < this._objects_length; o++) {
+
+    this._gl.useProgram(this._shader_programs[o]);
+
+    this._objects[o].render(this._gl);
+
+  }
 
   // request another animation frame
   this._animation_frame_id = window.requestAnimationFrame(this.render_.bind(this));
