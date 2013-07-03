@@ -2,6 +2,7 @@
 goog.provide('X.renderer3D');
 
 // requires
+goog.require('X.gl');
 goog.require('X.renderer');
 goog.require('goog.webgl');
 
@@ -86,6 +87,13 @@ X.renderer3D.prototype.init = function(canvas) {
 
   }
 
+  // inject customized functionality from X.gl
+  for (var f in X.gl) {
+
+    this._gl[f] = X.gl[f];
+
+  }
+
   // configure the WebGL context
   this._gl.viewport(0, 0, this._width, this._height);
 
@@ -100,13 +108,16 @@ X.renderer3D.prototype.init = function(canvas) {
 
 };
 
+/**
+ *
+ * @param object
+ */
 X.renderer3D.prototype.add = function(object) {
 
   this._objects.push(object);
   this._objects_length++;
 
-  this._shader_programs.push(object.init_shaders(this._gl));
-  object.init_buffers(this._gl);
+  this._shader_programs.push(object.init(this._gl));
 
 };
 
@@ -172,4 +183,5 @@ X.renderer3D.prototype.destroy = function() {
 goog.exportSymbol('X.renderer3D', X.renderer3D);
 goog.exportSymbol('X.renderer3D.prototype.init', X.renderer3D.prototype.init);
 goog.exportSymbol('X.renderer3D.prototype.destroy', X.renderer3D.prototype.destroy);
+goog.exportSymbol('X.renderer3D.prototype.add', X.renderer3D.prototype.add);
 goog.exportSymbol('X.renderer3D.prototype.render', X.renderer3D.prototype.render);
