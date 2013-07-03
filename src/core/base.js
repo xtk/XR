@@ -61,6 +61,16 @@ Object.defineProperty(X.base.prototype, 'classname', {
    */
   get : function() {
     return this._classname;
+  },
+  /**
+   * Set the classname of this instance.
+   *
+   * @param {!string} classname The new classname.
+   * @this {X.base}
+   * @public
+   */
+  set : function(classname) {
+    this._classname = classname;
   }
 });
 
