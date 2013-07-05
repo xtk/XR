@@ -3,7 +3,8 @@ goog.provide('X.object');
 
 // requires
 goog.require('X.base');
-goog.require('X.shader');
+goog.require('X.shaderV');
+goog.require('X.shaderF');
 goog.require('goog.webgl');
 
 /**
@@ -36,7 +37,7 @@ X.object = function() {
              1.0, -1.0,  0.0
         ]);
 
-  this._color = [1,0,1];
+  this._color = [1.0,1.0,0.0];
 
   this._attributes = {};
 
@@ -44,24 +45,64 @@ X.object = function() {
 
   this._type = goog.webgl.TRIANGLES;
 
+  //
+  // create the default shaders
+
+  this._vertex_shader = new X.shaderV();
+
+  this._fragment_shader = new X.shaderF();
+
 };
 // enable events
 X.__extends__(X.object, X.base);
+
+Object.defineProperty(X.object.prototype, 'gl', {
+  /**
+   * Get the WebGL rendering context.
+   *
+   * @return {?Object} The WebGL rendering context.
+   * @this {X.object}
+   * @public
+   */
+  get : function() {
+    return this._gl;
+  }
+});
+
+Object.defineProperty(X.object.prototype, 'fragment_shader', {
+  /**
+   * Get the fragment shader of this object.
+   *
+   * @return {!X.shaderF} The fragment shader.
+   * @this {X.object}
+   * @public
+   */
+  get : function() {
+    return this._fragment_shader;
+  }
+});
+
+Object.defineProperty(X.object.prototype, 'uniforms', {
+  /**
+   * Get the uniforms and uniform locations of this object.
+   *
+   * @return {!Object} The dictionary of uniforms of this object.
+   * @this {X.object}
+   * @public
+   */
+  get : function() {
+    return this._uniforms;
+  }
+});
 
 X.object.prototype.init = function(gl) {
 
   this._gl = gl;
 
-  var vertex_shader = X.shader.VERTEX;
-
-  var fragment_shader = X.shader.FRAGMENT;
-  fragment_shader = fragment_shader.replace('// {UNIFORMS}', 'uniform vec3 uColor;');
-  fragment_shader = fragment_shader.replace('// {MAIN_END}', 'gl_FragColor = vec4(uColor,1.0);');
-
-  var shader_program = X.shader.create(gl, vertex_shader, fragment_shader);
-
-  this._attributes['aVertexPosition'] = gl.getAttribLocation(shader_program, 'aVertexPosition');
-  this._uniforms['uColor'] = gl.getUniformLocation(shader_program, 'uColor');
+  // create the shader program and store the attribute and uniform locations
+  var shader_program = X.shader.create(gl, this._vertex_shader._source, this._fragment_shader._source);
+  this._attributes = this._vertex_shader.get_attribute_locations(gl, shader_program);
+  this._uniforms = this._fragment_shader.get_uniform_locations(gl, shader_program);
 
   this.update();
 
@@ -80,7 +121,6 @@ X.object.prototype.render = function() {
   var gl = this._gl;
 
   gl.attribute(this._attributes['aVertexPosition'], this._vertex_buffer, 3);
-  gl.uniform3fv(this._uniforms['uColor'], this._color);
 
   gl.drawArrays(this._type, 0, 3);
 

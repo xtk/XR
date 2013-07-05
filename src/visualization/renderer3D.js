@@ -117,7 +117,7 @@ X.renderer3D.prototype.add = function(object) {
   this._objects.push(object);
   this._objects_length++;
 
-  this._shader_programs.push(object.init(this._gl));
+  this._shader_programs.push(object['init'](this._gl));
 
 };
 
@@ -153,7 +153,7 @@ X.renderer3D.prototype.render_ = function() {
 
     this._gl.useProgram(this._shader_programs[o]);
 
-    this._objects[o].render(this._gl);
+    this._objects[o]['render'](this._gl);
 
   }
 

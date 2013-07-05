@@ -2,32 +2,24 @@ X.external = function() {
 
   X.__super__(this);
 
-  this._classname = 'external';
-
-  this.dirty = true;
+  this.classname = 'external';
 
 };
-X.__extends__(X.external, X.base);
+X.__extends__(X.external, X.object);
 
-X.external.prototype.test = function() {
+X.external.prototype.init = function(gl) {
 
-  console.log('ex');
+  this.fragment_shader.add_uniforms(['uniform vec3 uColor;']);
+  this.fragment_shader.add_code_at_main_end(['gl_FragColor = vec4(uColor, 1.0);']);
 
-};
-
-
-X.external2 = function() {
-
-  X.__super__(this);
+  return X.__super__(this, 'init', gl);
 
 };
-X.__extends__(X.external2, X.external);
 
-X.external2.prototype.test = function() {
+X.external.prototype.render = function() {
 
-  X.__super__(this,
-      'test');
+  this.gl.uniform3fv(this.uniforms['uColor'], [1,1,0]);
 
-  console.log('2');
+  X.__super__(this, 'render');
 
 };
