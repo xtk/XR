@@ -32,16 +32,16 @@ X.object = function() {
   this._gl = null;
 
   this._points = new Float32Array( [
-             -1.0,  1.0,  0.0,
-            -1.0, -1.0,  0.0,
-             1.0, -1.0,  0.0
+             -100, 100, 100,
+            -100, -100, -100,
+             100, -100, 0
         ]);
 
   this._color = [1.0,1.0,0.0];
 
-  this._attributes = {};
+  this._attributes = null;
 
-  this._uniforms = {};
+  this._uniforms = null;
 
   this._type = goog.webgl.TRIANGLES;
 
@@ -133,7 +133,15 @@ X.object.prototype.init = function(gl) {
   // create the shader program and store the attribute and uniform locations
   var shader_program = X.shader.create(gl, this._vertex_shader._source, this._fragment_shader._source);
   this._attributes = this._vertex_shader.get_attribute_locations(gl, shader_program);
-  this._uniforms = this._fragment_shader.get_uniform_locations(gl, shader_program);
+  this._uniforms = {};
+  var vertex_uniforms = this._vertex_shader.get_uniform_locations(gl, shader_program);
+  for (var vu in vertex_uniforms) {
+    this._uniforms[vu] = vertex_uniforms[vu];
+  }
+  var fragment_uniforms = this._fragment_shader.get_uniform_locations(gl, shader_program);
+  for (var fu in fragment_uniforms) {
+    this._uniforms[fu] = fragment_uniforms[fu];
+  }
 
   this.update();
 
@@ -153,11 +161,14 @@ X.object.prototype.update = function() {
 /**
  *
  */
-X.object.prototype.render = function() {
+X.object.prototype.render = function(camera) {
 
   var gl = this._gl;
 
   gl.attribute(this._attributes['aVertexPosition'], this._vertex_buffer, 3);
+
+  gl.uniformMatrix4fv(this._uniforms['perspective'], false, camera._perspective);
+  gl.uniformMatrix4fv(this._uniforms['view'], false, camera._view);
 
   gl.drawArrays(this._type, 0, 3);
 

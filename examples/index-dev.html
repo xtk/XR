@@ -16,9 +16,31 @@ r.init();
 var o = new X.external();
 r.add(o);  
   
-
+abcdef= o;
   r.render();
 abc=r;
+
+abc.canvas.onmousewheel = function(e) {abc._camera.zoom(e.wheelDeltaY/10); return false;}
+
+var lastMouse;
+
+function onMouseMove(event) {
+    var xDelta, yDelta;
+    if (navigator.webkitPointer && navigator.webkitPointer.isLocked) {
+        xDelta = event.webkitMovementX;
+        yDelta = event.webkitMovementY;
+    } else {
+        if (lastMouse == null) lastMouse = {x:event.clientX, y:event.clientY};
+        xDelta = event.clientX - lastMouse.x;
+        yDelta = event.clientY - lastMouse.y;
+    }
+    
+    abc._camera.rotate(xDelta, yDelta);
+    
+}
+
+abc.canvas.onmousemove = onMouseMove;
+
 };
 
 </script>

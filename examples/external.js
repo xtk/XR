@@ -16,10 +16,10 @@ X.external.prototype.init = function(gl) {
 
 };
 
-X.external.prototype.render = function() {
+X.external.prototype.render = function(camera) {
 
   this.gl.uniform3fv(this.uniforms['uColor'], [1,1,0]);
 
-  X.__super__(this, 'render');
+  X.__super__(this, 'render', camera);
 
 };

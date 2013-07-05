@@ -25,7 +25,9 @@ X.shaderV = function() {
 
   this.add_header(['precision mediump float;']);
   this.add_attributes(['attribute vec3 aVertexPosition;']);
-  this.add_code_at_main_begin(['gl_Position = vec4(aVertexPosition, 1.0);']);
+  this.add_uniforms(['uniform mat4 view;',
+                     'uniform mat4 perspective;']);
+  this.add_code_at_main_begin(['gl_Position = perspective * view * vec4(aVertexPosition, 1.0);']);
 
 };
 X.__extends__(X.shaderV, X.shader);

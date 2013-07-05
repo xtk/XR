@@ -2,6 +2,7 @@
 goog.provide('X.renderer3D');
 
 // requires
+goog.require('X.camera3D');
 goog.require('X.gl');
 goog.require('X.renderer');
 goog.require('goog.webgl');
@@ -104,6 +105,10 @@ X.renderer3D.prototype.init = function(canvas) {
   // clear color and depth buffer
   this._gl.clear(goog.webgl.COLOR_BUFFER_BIT | goog.webgl.DEPTH_BUFFER_BIT);
 
+  //
+  // setup the camera
+  this._camera = new X.camera3D(this._width, this._height);
+
   return true;
 
 };
@@ -153,7 +158,7 @@ X.renderer3D.prototype.render_ = function() {
 
     this._gl.useProgram(this._shader_programs[o]);
 
-    this._objects[o]['render'](this._gl);
+    this._objects[o]['render'](this._camera);
 
   }
 
