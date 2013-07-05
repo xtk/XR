@@ -69,6 +69,19 @@ Object.defineProperty(X.object.prototype, 'gl', {
   }
 });
 
+Object.defineProperty(X.object.prototype, 'vertex_shader', {
+  /**
+   * Get the vertex shader of this object.
+   *
+   * @return {!X.shaderV} The vertex shader.
+   * @this {X.object}
+   * @public
+   */
+  get : function() {
+    return this._vertex_shader;
+  }
+});
+
 Object.defineProperty(X.object.prototype, 'fragment_shader', {
   /**
    * Get the fragment shader of this object.
@@ -79,6 +92,19 @@ Object.defineProperty(X.object.prototype, 'fragment_shader', {
    */
   get : function() {
     return this._fragment_shader;
+  }
+});
+
+Object.defineProperty(X.object.prototype, 'attributes', {
+  /**
+   * Get the attributes and attribute locations of this object.
+   *
+   * @return {!Object} The dictionary of attributes of this object.
+   * @this {X.object}
+   * @public
+   */
+  get : function() {
+    return this._attributes;
   }
 });
 
@@ -95,6 +121,11 @@ Object.defineProperty(X.object.prototype, 'uniforms', {
   }
 });
 
+/**
+ *
+ * @param gl
+ * @returns
+ */
 X.object.prototype.init = function(gl) {
 
   this._gl = gl;
@@ -110,12 +141,18 @@ X.object.prototype.init = function(gl) {
 
 };
 
+/**
+ *
+ */
 X.object.prototype.update = function() {
 
   this._vertex_buffer = this._gl.create_buffer(this._points);
 
 };
 
+/**
+ *
+ */
 X.object.prototype.render = function() {
 
   var gl = this._gl;
@@ -126,6 +163,9 @@ X.object.prototype.render = function() {
 
 };
 
+/**
+ *
+ */
 X.object.prototype.destroy = function() {
 
 };
