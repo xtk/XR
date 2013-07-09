@@ -215,7 +215,7 @@ X.shader.create = function(gl, vertex_shader, fragment_shader) {
   gl.linkProgram(shader_program);
 
   if (!gl.getProgramParameter(shader_program, goog.webgl.LINK_STATUS)) {
-    throw new Error('Could not link shaders.');
+    throw new Error(gl.getProgramInfoLog(shader_program));
   }
 
   return shader_program;

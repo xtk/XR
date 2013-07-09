@@ -5,42 +5,62 @@
 <script type="text/javascript" src="../xr-deps.js"></script>
 <script type="text/javascript" src="../test/requires.js"></script>
 <script type="text/javascript" src="external.js"></script>
+<script type="text/javascript" src="xio.js"></script>
 <script>
 
 window.onload = function() { 
   
+  //X.io.load('http://x.babymri.org/?lefthemisphere.smoothwm');
+  //X.io.load('lh.small.smoothwm');
+  X.io.load('bunny.vtk');
   
-  var r = new X.renderer3D();
-r.init();
+  X.io.oncomplete = function() {
 
-var o = new X.external();
-r.add(o);  
-  
-abcdef= o;
-  r.render();
-abc=r;
-
-abc.canvas.onmousewheel = function(e) {abc._camera.zoom(e.wheelDeltaY/10); return false;}
-
-var lastMouse;
-
-function onMouseMove(event) {
-    var xDelta, yDelta;
-    if (navigator.webkitPointer && navigator.webkitPointer.isLocked) {
-        xDelta = event.webkitMovementX;
-        yDelta = event.webkitMovementY;
-    } else {
-        if (lastMouse == null) lastMouse = {x:event.clientX, y:event.clientY};
-        xDelta = event.clientX - lastMouse.x;
-        yDelta = event.clientY - lastMouse.y;
-    }
+    console.log('loaded');
+    //input = X.io.get('lh.small.smoothwm');
+    input = X.io.get('bunny.vtk');
     
-    abc._camera.rotate(xDelta, yDelta);
-    
-}
+	  var r = new X.renderer3D();
+	r.init();
+	
+	//var o = new X.external();
+	//r.add(o);
+	
+	var o = new X.object();
+	o._vertices = input.data.vertices;
+	o._faces = input.data.faces;
+	o._normals = X.object.normalize(o._vertices, o._faces);
+	r.add(o);
+	
+	console.log(o._vertex_shader.source);
+	console.log(o._fragment_shader.source);
+	  
+	abcdef= o;
+	  r.render();
+	abc=r;
+	
+	abc.canvas.onmousewheel = function(e) {abc._camera.zoom(e.wheelDeltaY/100); return false;}
+	
+	var lastMouse;
+	
+	function onMouseMove(event) {
+	    var xDelta, yDelta;
+	    if (navigator.webkitPointer && navigator.webkitPointer.isLocked) {
+	        xDelta = event.webkitMovementX;
+	        yDelta = event.webkitMovementY;
+	    } else {
+	        if (lastMouse == null) lastMouse = {x:event.clientX, y:event.clientY};
+	        xDelta = event.clientX - lastMouse.x;
+	        yDelta = event.clientY - lastMouse.y;
+	    }
+	    
+	    abc._camera.rotate(xDelta, yDelta);
+	    
+	}
+	
+	abc.canvas.onmousemove = onMouseMove;
 
-abc.canvas.onmousemove = onMouseMove;
-
+  }
 };
 
 </script>

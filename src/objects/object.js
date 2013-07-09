@@ -5,6 +5,7 @@ goog.provide('X.object');
 goog.require('X.base');
 goog.require('X.shaderV');
 goog.require('X.shaderF');
+goog.require('X.vector');
 goog.require('goog.webgl');
 
 /**
@@ -31,11 +32,19 @@ X.object = function() {
 
   this._gl = null;
 
-  this._points = new Float32Array( [
-             -100, 100, 100,
-            -100, -100, -100,
-             100, -100, 0
-        ]);
+  this._vertex_count = 0;
+
+  this._vertices = null;
+
+  this._face_count = 0;
+
+  this._faces_length = 0;
+
+  this._faces = null;
+
+  this._normals = null;
+
+  this._colors = null;
 
   this._color = [1.0,1.0,0.0];
 
@@ -43,7 +52,7 @@ X.object = function() {
 
   this._uniforms = null;
 
-  this._type = goog.webgl.TRIANGLES;
+  this._type = goog.webgl.POINTS;
 
   //
   // create the default shaders
@@ -154,7 +163,11 @@ X.object.prototype.init = function(gl) {
  */
 X.object.prototype.update = function() {
 
-  this._vertex_buffer = this._gl.create_buffer(this._points);
+  this._vertex_buffer = this._gl.create_buffer(this._vertices);
+  this._face_buffer = this._gl.create_element_buffer(this._faces);
+  this._faces_length = this._faces.length;
+
+  this._normal_buffer = this._gl.create_buffer(this._normals);
 
 };
 
@@ -165,12 +178,26 @@ X.object.prototype.render = function(camera) {
 
   var gl = this._gl;
 
-  gl.attribute(this._attributes['aVertexPosition'], this._vertex_buffer, 3);
-
   gl.uniformMatrix4fv(this._uniforms['perspective'], false, camera._perspective);
   gl.uniformMatrix4fv(this._uniforms['view'], false, camera._view);
 
-  gl.drawArrays(this._type, 0, 3);
+  gl.attribute(this._attributes['aVertexPosition'], this._vertex_buffer, 3);
+  gl.attribute(this._attributes['aVertexNormal'], this._normal_buffer, 3);
+
+  if (!this._faces) {
+
+    // non-indexed drawing
+    gl.drawArrays(this._type, 0, this._vertex_count);
+
+  } else {
+
+    // indexed drawing
+    //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._face_buffer);
+    gl.drawElements(this._type, 50000, goog.webgl.UNSIGNED_SHORT, 0);
+    gl.drawElements(this._type, 100000, goog.webgl.UNSIGNED_SHORT, 50000);
+    gl.drawElements(this._type, 150000, goog.webgl.UNSIGNED_SHORT, 100000);
+
+  }
 
 };
 
@@ -178,6 +205,85 @@ X.object.prototype.render = function(camera) {
  *
  */
 X.object.prototype.destroy = function() {
+
+};
+
+X.object.normalize = function(vertices, faces) {
+
+  var _normals = new Float32Array(vertices.length);
+  var _counter = new Uint32Array(vertices.length);
+
+
+  var _face_count = faces.length / 3;
+  for (var i=0; i<_face_count; i++) {
+
+    var f = i*3;
+
+    var v_index_a = faces[f];
+    _counter[v_index_a] += 1;
+    v_index_a *= 3;
+    var a = new X.vector(vertices[v_index_a], vertices[v_index_a+1], vertices[v_index_a+2]);
+    var v_index_b = faces[f+1];
+    _counter[v_index_b] += 1;
+    v_index_b *= 3;
+    var b = new X.vector(vertices[v_index_b], vertices[v_index_b+1], vertices[v_index_b+2]);
+    var v_index_c = faces[f+2];
+    _counter[v_index_c] += 1;
+    v_index_c *= 3;
+    var c = new X.vector(vertices[v_index_c], vertices[v_index_c+1], vertices[v_index_c+2]);
+
+    var e1 = b.clone().subtract(a);
+    var e2 = c.clone().subtract(a);
+    var normal = X.vector.cross(e1, e2).normalize();
+    var n_x = normal.x;
+    var n_y = normal.y;
+    var n_z = normal.z;
+
+    _normals[v_index_a] += n_x;
+    _normals[v_index_a+1] += n_y;
+    _normals[v_index_a+2] += n_z;
+    _normals[v_index_b] += n_x;
+    _normals[v_index_b+1] += n_y;
+    _normals[v_index_b+2] += n_z;
+    _normals[v_index_c] += n_x;
+    _normals[v_index_c+1] += n_y;
+    _normals[v_index_c+2] += n_z;
+
+  }
+  for (var i=0; i<_face_count; i++) {
+
+    var f = i*3;
+    var v_index_a = faces[f];
+    v_index_a *= 3;
+    var a = new X.vector(_normals[v_index_a], _normals[v_index_a+1], _normals[v_index_a+2]);
+
+
+    var v_index_b = faces[f+1];
+    v_index_b *= 3;
+    var b = new X.vector(_normals[v_index_b], _normals[v_index_b+1], _normals[v_index_b+2]);
+
+    var v_index_c = faces[f+2];
+    v_index_c *= 3;
+    var c = new X.vector(_normals[v_index_c], _normals[v_index_c+1], _normals[v_index_c+2]);
+
+    var n1 = a.scale(1/_counter[v_index_a]).normalize();
+    var n2 = b.scale(1/_counter[v_index_b]).normalize();
+    var n3 = c.scale(1/_counter[v_index_c]).normalize();
+
+    _normals[v_index_a] = n1.x;
+    _normals[v_index_a+1] = n1.y;
+    _normals[v_index_a+2] = n1.z;
+    _normals[v_index_b] = n2.x;
+    _normals[v_index_b+1] = n2.y;
+    _normals[v_index_b+2] = n2.z;
+    _normals[v_index_c] = n3.x;
+    _normals[v_index_c+1] = n3.y;
+    _normals[v_index_c+2] = n3.z;
+
+  }
+
+
+  return _normals;
 
 };
 

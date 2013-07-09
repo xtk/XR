@@ -24,10 +24,15 @@ X.shaderV = function() {
   this._classname = 'shaderV';
 
   this.add_header(['precision mediump float;']);
-  this.add_attributes(['attribute vec3 aVertexPosition;']);
+  this.add_attributes(['attribute vec3 aVertexPosition;',
+                       'attribute vec3 aVertexNormal;']);
   this.add_uniforms(['uniform mat4 view;',
                      'uniform mat4 perspective;']);
-  this.add_code_at_main_begin(['gl_Position = perspective * view * vec4(aVertexPosition, 1.0);']);
+  this.add_varying(['varying vec4 vVertexPosition;',
+                    'varying vec3 vVertexNormal;']);
+  this.add_code_at_main_begin(['vVertexNormal = normalize(mat3(view[0].xyz,view[1].xyz,view[2].xyz) * aVertexNormal);',
+                               'vVertexPosition = perspective * view * vec4(aVertexPosition, 1.0);',
+                               'gl_Position = vVertexPosition;']);
 
 };
 X.__extends__(X.shaderV, X.shader);
