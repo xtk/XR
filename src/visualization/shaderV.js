@@ -30,9 +30,11 @@ X.shaderV = function() {
                      'uniform mat4 perspective;']);
   this.add_varying(['varying vec4 vVertexPosition;',
                     'varying vec3 vVertexNormal;']);
-  this.add_code_at_main_begin(['vVertexNormal = normalize(mat3(view[0].xyz,view[1].xyz,view[2].xyz) * aVertexNormal);',
+  this.add_code_at_main_begin(['vVertexNormal = normalize(aVertexNormal);',
                                'vVertexPosition = perspective * view * vec4(aVertexPosition, 1.0);',
                                'gl_Position = vVertexPosition;']);
+
+
 
 };
 X.__extends__(X.shaderV, X.shader);

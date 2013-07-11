@@ -11,14 +11,14 @@
 window.onload = function() { 
   
   //X.io.load('http://x.babymri.org/?lefthemisphere.smoothwm');
-  //X.io.load('lh.small.smoothwm');
-  X.io.load('bunny.vtk');
+  X.io.load('lh.small.smoothwm');
+  //X.io.load('bunny.vtk');
   
   X.io.oncomplete = function() {
 
     console.log('loaded');
-    //input = X.io.get('lh.small.smoothwm');
-    input = X.io.get('bunny.vtk');
+    input = X.io.get('lh.small.smoothwm');
+    //input = X.io.get('bunny.vtk');
     
 	  var r = new X.renderer3D();
 	r.init();
@@ -27,13 +27,64 @@ window.onload = function() {
 	//r.add(o);
 	
 	var o = new X.object();
-	o._vertices = input.data.vertices;
-	o._faces = input.data.faces;
-	o._normals = X.object.normalize(o._vertices, o._faces);
+  var oo = X.object.normalize(input.data.vertices, input.data.faces);
+	o._vertices = oo[0];
+  o._normals = oo[1];
+	//o._faces = input.data.faces;
+	//o._normals = X.object.normalize(o._vertices, o._faces);
+	
+	var cubeVertexIndices = [
+            0, 1, 2,      0, 2, 3,    // Front face
+            4, 5, 6,      4, 6, 7,    // Back face
+            8, 9, 10,     8, 10, 11,  // Top face
+            12, 13, 14,   12, 14, 15, // Bottom face
+            16, 17, 18,   16, 18, 19, // Right face
+            20, 21, 22,   20, 22, 23  // Left face
+        ];
+	
+  vertices = [
+              // Front face
+              -1.0, -1.0,  1.0,
+               1.0, -1.0,  1.0,
+               1.0,  1.0,  1.0,
+              -1.0,  1.0,  1.0,
+
+              // Back face
+              -1.0, -1.0, -1.0,
+              -1.0,  1.0, -1.0,
+               1.0,  1.0, -1.0,
+               1.0, -1.0, -1.0,
+
+              // Top face
+              -1.0,  1.0, -1.0,
+              -1.0,  1.0,  1.0,
+               1.0,  1.0,  1.0,
+               1.0,  1.0, -1.0,
+
+              // Bottom face
+              -1.0, -1.0, -1.0,
+               1.0, -1.0, -1.0,
+               1.0, -1.0,  1.0,
+              -1.0, -1.0,  1.0,
+
+              // Right face
+               1.0, -1.0, -1.0,
+               1.0,  1.0, -1.0,
+               1.0,  1.0,  1.0,
+               1.0, -1.0,  1.0,
+
+              // Left face
+              -1.0, -1.0, -1.0,
+              -1.0, -1.0,  1.0,
+              -1.0,  1.0,  1.0,
+              -1.0,  1.0, -1.0
+          ];
+  
+  //o._vertices = o._normals = new Float32Array(vertices);
+  //o._faces = new Uint16Array(cubeVertexIndices);
+	
 	r.add(o);
 	
-	console.log(o._vertex_shader.source);
-	console.log(o._fragment_shader.source);
 	  
 	abcdef= o;
 	  r.render();

@@ -38,6 +38,8 @@ X.shaderF = function() {
                                '                    color * diffuse +',
                                '                    vec3(0.2) * specular, 1.0);']);
 
+
+
 };
 X.__extends__(X.shaderF, X.shader);
 

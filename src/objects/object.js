@@ -5,6 +5,7 @@ goog.provide('X.object');
 goog.require('X.base');
 goog.require('X.shaderV');
 goog.require('X.shaderF');
+goog.require('X.triplets');
 goog.require('X.vector');
 goog.require('goog.webgl');
 
@@ -52,7 +53,7 @@ X.object = function() {
 
   this._uniforms = null;
 
-  this._type = goog.webgl.POINTS;
+  this._type = goog.webgl.TRIANGLES;
 
   //
   // create the default shaders
@@ -164,8 +165,12 @@ X.object.prototype.init = function(gl) {
 X.object.prototype.update = function() {
 
   this._vertex_buffer = this._gl.create_buffer(this._vertices);
-  this._face_buffer = this._gl.create_element_buffer(this._faces);
-  this._faces_length = this._faces.length;
+  this._vertex_count = this._vertices.count;
+
+  if (this._faces) {
+    this._face_buffer = this._gl.create_element_buffer(this._faces);
+    this._faces_length = this._faces.length;
+  }
 
   this._normal_buffer = this._gl.create_buffer(this._normals);
 
@@ -192,10 +197,8 @@ X.object.prototype.render = function(camera) {
   } else {
 
     // indexed drawing
-    //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._face_buffer);
-    gl.drawElements(this._type, 50000, goog.webgl.UNSIGNED_SHORT, 0);
-    gl.drawElements(this._type, 100000, goog.webgl.UNSIGNED_SHORT, 50000);
-    gl.drawElements(this._type, 150000, goog.webgl.UNSIGNED_SHORT, 100000);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._face_buffer);
+    gl.drawElements(this._type, this._faces_length, goog.webgl.UNSIGNED_SHORT, 0);
 
   }
 
@@ -210,80 +213,99 @@ X.object.prototype.destroy = function() {
 
 X.object.normalize = function(vertices, faces) {
 
-  var _normals = new Float32Array(vertices.length);
-  var _counter = new Uint32Array(vertices.length);
-
+  var _points = new Float32Array(faces.length * 3);
+  var _normals_buffer = new Float32Array(faces.length * 9);
+  var _normals = new Float32Array(faces.length * 3);
+  var _normals_counter = new Uint32Array(faces.length);
 
   var _face_count = faces.length / 3;
-  for (var i=0; i<_face_count; i++) {
+  for (var i=0; i<_face_count; ++i) {
+
+    // loop through all triangles
+    // to create face normals
 
     var f = i*3;
 
-    var v_index_a = faces[f];
-    _counter[v_index_a] += 1;
-    v_index_a *= 3;
-    var a = new X.vector(vertices[v_index_a], vertices[v_index_a+1], vertices[v_index_a+2]);
-    var v_index_b = faces[f+1];
-    _counter[v_index_b] += 1;
-    v_index_b *= 3;
-    var b = new X.vector(vertices[v_index_b], vertices[v_index_b+1], vertices[v_index_b+2]);
-    var v_index_c = faces[f+2];
-    _counter[v_index_c] += 1;
-    v_index_c *= 3;
-    var c = new X.vector(vertices[v_index_c], vertices[v_index_c+1], vertices[v_index_c+2]);
+    // grab the 3 vertex indices
+    var index1 = faces[f];
+    var index2 = faces[f+1];
+    var index3 = faces[f+2];    
 
-    var e1 = b.clone().subtract(a);
-    var e2 = c.clone().subtract(a);
+    // and increase the counter
+    _normals_counter[index1]++;
+    _normals_counter[index2]++;
+    _normals_counter[index3]++;
+
+    index1 *= 3;
+    var x1 = vertices[index1];
+    var y1 = vertices[index1+1];
+    var z1 = vertices[index1+2];
+
+    index2 *= 3;
+    var x2 = vertices[index2];
+    var y2 = vertices[index2+1];
+    var z2 = vertices[index2+2];
+
+    index3 *= 3;
+    var x3 = vertices[index3];
+    var y3 = vertices[index3+1];
+    var z3 = vertices[index3+2];
+
+    // add the points for this triangle
+    _points.add(x1, y1, z1);
+    _points.add(x2, y2, z2);
+    _points.add(x3, y3, z3);
+
+    // also create a vector representation for the normal calculation
+    var a = new X.vector(x1, y1, z1);
+    var b = new X.vector(x2, y2, z2);
+    var c = new X.vector(x3, y3, z3);
+
+    var e1 = a.subtract(b);
+    var e2 = c.subtract(b);
     var normal = X.vector.cross(e1, e2).normalize();
-    var n_x = normal.x;
-    var n_y = normal.y;
-    var n_z = normal.z;
 
-    _normals[v_index_a] += n_x;
-    _normals[v_index_a+1] += n_y;
-    _normals[v_index_a+2] += n_z;
-    _normals[v_index_b] += n_x;
-    _normals[v_index_b+1] += n_y;
-    _normals[v_index_b+2] += n_z;
-    _normals[v_index_c] += n_x;
-    _normals[v_index_c+1] += n_y;
-    _normals[v_index_c+2] += n_z;
+    // sum all normals
+    _normals_buffer[index1] += normal.x;
+    _normals_buffer[index1 + 1] += normal.y;
+    _normals_buffer[index1 + 2] += normal.z;
+    _normals_buffer[index2] += normal.x;
+    _normals_buffer[index2 + 1] += normal.y;
+    _normals_buffer[index2 + 2] += normal.z;
+    _normals_buffer[index3] += normal.x;
+    _normals_buffer[index3 + 1] += normal.y;
+    _normals_buffer[index3 + 2] += normal.z;
 
   }
-  for (var i=0; i<_face_count; i++) {
+
+  // now create the vertex normals
+  for (var i=0; i<_face_count; ++i) {
 
     var f = i*3;
-    var v_index_a = faces[f];
-    v_index_a *= 3;
-    var a = new X.vector(_normals[v_index_a], _normals[v_index_a+1], _normals[v_index_a+2]);
 
+    // grab the 3 vertices
+    var index1 = faces[f];
+    var index2 = faces[f+1];
+    var index3 = faces[f+2];
+    var _i1 = index1*3;
+    var _i2 = index2*3;
+    var _i3 = index3*3;
 
-    var v_index_b = faces[f+1];
-    v_index_b *= 3;
-    var b = new X.vector(_normals[v_index_b], _normals[v_index_b+1], _normals[v_index_b+2]);
+    var n1 = new X.vector(_normals_buffer[_i1], _normals_buffer[_i1 + 1], _normals_buffer[_i1 + 2]);
+    var n2 = new X.vector(_normals_buffer[_i2], _normals_buffer[_i2 + 1], _normals_buffer[_i2 + 2]);
+    var n3 = new X.vector(_normals_buffer[_i3], _normals_buffer[_i3 + 1], _normals_buffer[_i3 + 2]);
 
-    var v_index_c = faces[f+2];
-    v_index_c *= 3;
-    var c = new X.vector(_normals[v_index_c], _normals[v_index_c+1], _normals[v_index_c+2]);
+    // scale the vectors according to the counter
+    n1 = n1.scale(1 / _normals_counter[index1]);
+    n2 = n2.scale(1 / _normals_counter[index2]);
+    n3 = n3.scale(1 / _normals_counter[index3]);
 
-    var n1 = a.scale(1/_counter[v_index_a]).normalize();
-    var n2 = b.scale(1/_counter[v_index_b]).normalize();
-    var n3 = c.scale(1/_counter[v_index_c]).normalize();
-
-    _normals[v_index_a] = n1.x;
-    _normals[v_index_a+1] = n1.y;
-    _normals[v_index_a+2] = n1.z;
-    _normals[v_index_b] = n2.x;
-    _normals[v_index_b+1] = n2.y;
-    _normals[v_index_b+2] = n2.z;
-    _normals[v_index_c] = n3.x;
-    _normals[v_index_c+1] = n3.y;
-    _normals[v_index_c+2] = n3.z;
-
+    _normals.add(n1.x, n1.y, n1.z);
+    _normals.add(n2.x, n2.y, n2.z);
+    _normals.add(n3.x, n3.y, n3.z);
   }
 
-
-  return _normals;
+  return [_points, _normals];
 
 };
 

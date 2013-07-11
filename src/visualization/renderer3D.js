@@ -1,3 +1,4 @@
+
 // provides
 goog.provide('X.renderer3D');
 
@@ -101,6 +102,13 @@ X.renderer3D.prototype.init = function(canvas) {
   // configure opacity to 0.0 to overwrite the viewport background-color by
   // the container color
   this._gl.clearColor(0.0, 0.0, 0.0, 0.0);
+
+  // enable WebGL settings
+  this._gl.enable(goog.webgl.BLEND);
+  this._gl.blendEquation(goog.webgl.FUNC_ADD);
+  this._gl.blendFunc(goog.webgl.SRC_ALPHA, goog.webgl.ONE_MINUS_SRC_ALPHA);
+  this._gl.enable(goog.webgl.DEPTH_TEST);
+  this._gl.depthFunc(goog.webgl.LEQUAL);
 
   // clear color and depth buffer
   this._gl.clear(goog.webgl.COLOR_BUFFER_BIT | goog.webgl.DEPTH_BUFFER_BIT);
