@@ -47,13 +47,27 @@ X.object = function() {
 
   this._colors = null;
 
-  this._color = [1.0,1.0,0.0];
+  this._color = new Float32Array([1.0,1.0,0.0]);
 
   this._attributes = null;
 
   this._uniforms = null;
 
   this._type = goog.webgl.TRIANGLES;
+
+  this._center = new Float32Array([0,0,0]);
+
+  this._light = new Float32Array([0,-1,-1]);
+
+  this._light_direction = new Float32Array([0, 0, -1]);
+
+  this._specular = 1;
+
+  this._diffuse = 0.4;
+
+  this._ambient = 0.3;
+
+  this._ambient_color = [0.6, 0.6, 0.6];
 
   //
   // create the default shaders
@@ -183,11 +197,21 @@ X.object.prototype.render = function(camera) {
 
   var gl = this._gl;
 
-  gl.uniformMatrix4fv(this._uniforms['perspective'], false, camera._perspective);
-  gl.uniformMatrix4fv(this._uniforms['view'], false, camera._view);
+  gl.uniformMatrix4fv(this._uniforms['u_perspective'], false, camera._perspective);
+  gl.uniformMatrix4fv(this._uniforms['u_view'], false, camera._view);
 
-  gl.attribute(this._attributes['aVertexPosition'], this._vertex_buffer, 3);
-  gl.attribute(this._attributes['aVertexNormal'], this._normal_buffer, 3);
+  gl.uniform3fv(this._uniforms['u_center'], this._center);
+  gl.uniform3fv(this._uniforms['u_centroid'], this._vertices._centroid);
+
+  gl.uniform3fv(this._uniforms['u_light'], this._light);
+  gl.uniform3fv(this._uniforms['u_light_direction'], this._light_direction);
+  gl.uniform1f(this._uniforms['u_specular'], this._specular);
+  gl.uniform1f(this._uniforms['u_diffuse'], this._diffuse);
+  gl.uniform1f(this._uniforms['u_ambient'], this._ambient);
+  gl.uniform3fv(this._uniforms['u_ambient_color'], this._ambient_color);
+
+  gl.attribute(this._attributes['a_vertex_position'], this._vertex_buffer, 3);
+  gl.attribute(this._attributes['a_vertex_normal'], this._normal_buffer, 3);
 
   if (!this._faces) {
 

@@ -34,7 +34,7 @@ X.camera = function(width, height) {
    * @type {!X.vector}
    * @protected
    */
-  this._position = new X.vector(0, 100, 0);
+  this._position = new X.vector(0, 0.2, 0);
 
   /**
    * The focus point of this camera, by default 0, 0, 0.
@@ -64,6 +64,7 @@ X.camera = function(width, height) {
 // inherit from X.base
 X.__extends__(X.camera, X.base);
 
+
 X.camera.prototype.zoom = function(value) {
 
   this._view[14] += value;
@@ -85,5 +86,11 @@ X.camera.prototype.rotate = function(x,y) {
   // row+col * 4
   X.matrix.rotate(this._view, angleX, axisX.x, axisX.y, axisX.z);
   X.matrix.rotate(this._view, angleY, axisY.x, axisY.y, axisY.z);
+
+};
+
+X.camera.prototype.onzoom_ = function(event) {
+  
+  this.zoom(event._distance);
 
 };

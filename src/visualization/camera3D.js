@@ -27,7 +27,7 @@ X.camera3D = function(width, height) {
    */
   this._field_of_view = 45;
 
-  this._near = 1;
+  this._near = 0.01;
 
   this._far = 10000;
 
@@ -42,3 +42,9 @@ X.camera3D = function(width, height) {
 };
 // inherit from X.base
 X.__extends__(X.camera3D, X.camera);
+
+X.camera3D.prototype.onrotate_ = function(event) {
+
+  this.rotate(event._distance.x, event._distance.y);
+
+};

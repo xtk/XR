@@ -5,6 +5,7 @@ goog.provide('X.renderer3D');
 // requires
 goog.require('X.camera3D');
 goog.require('X.gl');
+goog.require('X.interactor');
 goog.require('X.renderer');
 goog.require('goog.webgl');
 
@@ -43,6 +44,8 @@ X.renderer3D = function() {
 
   this._shader_programs = [];
 
+  this._interactor = null;
+
 };
 X.__extends__(X.renderer3D, X.renderer);
 
@@ -72,12 +75,9 @@ X.renderer3D.prototype.init = function(canvas) {
   // try to create the WebGL context
   try {
 
-    // first use experimental-webgl
-    this._gl = this._canvas.getContext('experimental-webgl');
-    // if it doesn't work, use webgl
-    if (!this._gl) {
-      this._gl = this._canvas.getContext('webgl');
-    }
+    // try to get a webgl context
+    this._gl = this._canvas.getContext('experimental-webgl') || this._canvas.getContext('webgl');
+
     // and if this didn't work, we don't have webgl
     if (!this._gl) {
       return false;
@@ -114,8 +114,16 @@ X.renderer3D.prototype.init = function(canvas) {
   this._gl.clear(goog.webgl.COLOR_BUFFER_BIT | goog.webgl.DEPTH_BUFFER_BIT);
 
   //
+  // setup the interactor
+  this._interactor = new X.interactor(this._canvas);
+  this._interactor.init();
+
+  //
   // setup the camera
   this._camera = new X.camera3D(this._width, this._height);
+  // .. and listen to some interactor events
+  X.listen(this._interactor, X.events.ROTATE, this._camera.onrotate_.bind(this._camera));
+  X.listen(this._interactor, X.events.ZOOM, this._camera.onzoom_.bind(this._camera));
 
   return true;
 

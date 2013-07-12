@@ -6,19 +6,21 @@
 <script type="text/javascript" src="../test/requires.js"></script>
 <script type="text/javascript" src="external.js"></script>
 <script type="text/javascript" src="xio.js"></script>
+<script type="text/javascript" src="xtk_xdat.gui.js"></script>
 <script>
 
 window.onload = function() { 
   
-  //X.io.load('http://x.babymri.org/?lefthemisphere.smoothwm');
-  X.io.load('lh.small.smoothwm');
+  X.io.load('http://x.babymri.org/?lefthemisphere.smoothwm');
+  //X.io.load('lh.small.smoothwm');
   //X.io.load('bunny.vtk');
   
   X.io.oncomplete = function() {
 
     console.log('loaded');
-    input = X.io.get('lh.small.smoothwm');
+    //input = X.io.get('lh.small.smoothwm');
     //input = X.io.get('bunny.vtk');
+    input = X.io.get('http://x.babymri.org/?lefthemisphere.smoothwm');
     
 	  var r = new X.renderer3D();
 	r.init();
@@ -26,6 +28,7 @@ window.onload = function() {
 	//var o = new X.external();
 	//r.add(o);
 	
+
 	var o = new X.object();
   var oo = X.object.normalize(input.data.vertices, input.data.faces);
 	o._vertices = oo[0];
@@ -90,26 +93,75 @@ window.onload = function() {
 	  r.render();
 	abc=r;
 	
-	abc.canvas.onmousewheel = function(e) {abc._camera.zoom(e.wheelDeltaY/100); return false;}
+	//abc.canvas.onmousewheel = function(e) {abc._camera.zoom(e.wheelDeltaY/100); return false;}
 	
-	var lastMouse;
+	// var lastMouse;
 	
-	function onMouseMove(event) {
-	    var xDelta, yDelta;
-	    if (navigator.webkitPointer && navigator.webkitPointer.isLocked) {
-	        xDelta = event.webkitMovementX;
-	        yDelta = event.webkitMovementY;
-	    } else {
-	        if (lastMouse == null) lastMouse = {x:event.clientX, y:event.clientY};
-	        xDelta = event.clientX - lastMouse.x;
-	        yDelta = event.clientY - lastMouse.y;
-	    }
+	// function onMouseMove(event) {
+	//     var xDelta, yDelta;
+	//     if (navigator.webkitPointer && navigator.webkitPointer.isLocked) {
+	//         xDelta = event.webkitMovementX;
+	//         yDelta = event.webkitMovementY;
+	//     } else {
+	//         if (lastMouse == null) lastMouse = {x:event.clientX, y:event.clientY};
+	//         xDelta = event.clientX - lastMouse.x;
+	//         yDelta = event.clientY - lastMouse.y;
+	//     }
 	    
-	    abc._camera.rotate(xDelta, yDelta);
+	//     abc._camera.rotate(xDelta, yDelta);
 	    
-	}
+	// }
 	
-	abc.canvas.onmousemove = onMouseMove;
+	// abc.canvas.onmousemove = onMouseMove;
+
+  var light = {
+    x:0,
+    y:-1,
+    z:-1
+  }
+
+  var lightdirection = {
+    x:0,
+    y:0,
+    z:-1
+  }  
+
+  var ambient = {
+    color: [0.6,0.6,0.6]
+  }
+
+  var gui = new dat.GUI();
+  var ac = gui.addColor(ambient, 'color');
+  gui.add(o, '_specular', 0, 10);
+  gui.add(o, '_diffuse', 0, 1);
+  gui.add(o, '_ambient', 0, 1);
+  var lx = gui.add(light, 'x', -1, 1);
+  var ly = gui.add(light, 'y', -1, 1);
+  var lz = gui.add(light, 'z', -1, 1);
+  var ldx = gui.add(lightdirection, 'x', -1, 1);
+  var ldy = gui.add(lightdirection, 'y', -1, 1);
+  var ldz = gui.add(lightdirection, 'z', -1, 1);
+
+
+  ac.onChange(function(value) {
+    o._ambient_color = new Float32Array(ambient.color);
+  })
+
+  lx.onChange(lightchange);
+  ly.onChange(lightchange);
+  lz.onChange(lightchange);
+
+  ldx.onChange(ldchange);
+  ldy.onChange(ldchange);
+  ldz.onChange(ldchange);
+
+  function lightchange() {
+    o._light = new Float32Array([light.x, light.y, light.z]);
+  }
+
+  function ldchange() {
+    o._light_direction = new Float32Array([lightdirection.x, lightdirection.y, lightdirection.z]);
+  }
 
   }
 };
@@ -117,5 +169,5 @@ window.onload = function() {
 </script>
 </head>
 
-<body></body>
+<body style='background:black;'></body>
 </html>

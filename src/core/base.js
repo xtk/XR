@@ -110,4 +110,10 @@ Object.defineProperty(X.base.prototype, 'dirty', {
   }
 });
 
+X.base.prototype.fire = function(event) {
+
+  this.dispatchEvent(event);
+
+};
+
 goog.exportSymbol('X.base', X.base);
